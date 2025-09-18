@@ -18,12 +18,10 @@ depend() {
 start_pre() {
     ebegin "Preparing chroot environment"
 
-    # optional: Snapshot des Server-Verzeichnisses
-    if [ -d "${SERVER_DIR}" ]; then
-        DATE=$(date +%Y-%m-%d_%H-%M)
-        zfs snapshot rpool/minecraft-bds-ROOT/1.21.101.1@${DATE}
-        echo "zfs snap of ${DATE}"
-    fi
+    # snapshot
+    DATE=$(date +%Y-%m-%d_%H-%M)
+    zfs snap rpool/minecraft-bds-ROOT/1.21.101.1@${DATE}
+    ebegin "zfs snap of ${DATE}"
 
     # Mounts (nur wenn nicht bereits da)
     mountpoint -q "${CHROOT_DIR}/proc" || mount -t proc none "${CHROOT_DIR}/proc"
