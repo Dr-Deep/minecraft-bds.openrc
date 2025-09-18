@@ -5,7 +5,7 @@ description="Minecraft Bedrock Dedicated Server (VoidLinux chroot)"
 
 command="" # run.sh
 pidfile="/run/${RC_SVCNAME}.pid"
-command_background=true
+command_background="yes"
 
 CHROOT_DIR="/mc-bds-ROOT" # rpool/minecraft-bds-ROOT              192K   225G    96K  /mc-bds-ROOT
 SERVER_DIR="/1.21.101.1" # rpool/minecraft-bds-ROOT/1.21.101.1    96K   225G    96K  /mc-bds-ROOT/1.21.101.1
@@ -21,7 +21,8 @@ start_pre() {
     # optional: Snapshot des Server-Verzeichnisses
     if [ -d "${SERVER_DIR}" ]; then
         DATE=$(date +%Y-%m-%d_%H-%M)
-        zfs snapshot rpool/minecraft-bds-ROOT/1.21.101.1@${DATE} 2>/dev/null
+        zfs snapshot rpool/minecraft-bds-ROOT/1.21.101.1@${DATE}
+        echo "zfs snap of ${DATE}"
     fi
 
     # Mounts (nur wenn nicht bereits da)
@@ -35,17 +36,19 @@ start_pre() {
 
 start() {
     ebegin "Starting ${name}"
-    chroot "${CHROOT_DIR}" "/run.sh" &
-    echo $! > "${pidfile}"
-    eend 0
+
+    start-stop-daemon --start --background \
+        --make-pidfile --pidfile "${pidfile}" \
+        --chroot "${CHROOT_DIR}" \
+        --exec "/run.sh"
+
+    eend $?
 }
 
 stop() {
     ebegin "Stopping ${name}"
-    if [ -f "${pidfile}" ]; then
-        kill -SIGINT $(cat "${pidfile}") 2>/dev/null
-        rm -f "${pidfile}"
-    fi
+    start-stop-daemon --stop --signal SIGUSR1 --pidfile "${pidfile}"
+    rm -f "${pidfile}"
 
     # Unmount nur, wenn noch gemountet
     umount -R "${CHROOT_DIR}/proc" 2>/dev/null
@@ -53,15 +56,5 @@ stop() {
     umount -R "${CHROOT_DIR}/dev/pts" 2>/dev/null
     umount -R "${CHROOT_DIR}/dev" 2>/dev/null
     umount -R "${CHROOT_DIR}/run" 2>/dev/null
-    eend 0
-}
-
-status() {
-    if [ -f "${pidfile}" ] && ps -p $(cat "${pidfile}") >/dev/null 2>&1; then
-        einfo "${name} is running as PID $(cat ${pidfile})"
-        return 0
-    else
-        einfo "${name} is not running"
-        return 1
-    fi
+    eend $?
 }
