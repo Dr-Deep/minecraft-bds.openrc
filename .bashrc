@@ -1,7 +1,7 @@
 # ~/.bashrc @mc-bds-chroot
 
 # PROMPT
-PS1='\[\e[0m\]┌─\[\e[0m\][\[\e[0m\]\u\[\e[0m\]@\[\e[0m\]\h\[\e[0m\]]\[\e[0m\]-\[\e[0m\][\[\e[0m\]\w\[\e[0m\]]\n\[\e[0m\]└──╼\[\e[0m\][\[\e[0m\]\$\[\e[0m\]]\[\e[0m\]> \[\e[0m\]'
+PS1='┌─[\u@mc-bds-chroot]-[\w]\n└──╼[\$]> '
 
 # terminal issues
 export TERM=xterm-256color 
