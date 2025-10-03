@@ -7,7 +7,8 @@ PS1='┌─[\u@mc-bds-chroot]-[\w]\n└──╼[\$]> '
 export TERM=xterm-256color 
 
 # local path
-PATH="$HOME/.local/bin:$PATH"
+export DOTNET_ROOT=/LeviLamina-1.21.111/dotnet
+export PATH="$HOME/.local/bin:$DOTNET_ROOT:$PATH"
 
 # Colorize ls output
 alias ls='ls -alhg'
